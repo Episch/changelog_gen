@@ -9,15 +9,23 @@ $filteredList = array_filter($result, function($value) { return $value !== ''; }
 $tagList = array();
 foreach ($filteredList as $tagKey => $tag){
     $tagData = explode(" ", $tag);
-
-    if(isset($tagData[5])){
+    if( isset($tagData[5]) || isset($tagData[8]) ){
         $date = $tagData[0];
         $time = $tagData[1];
         $timeZone = $tagData[2];
         unset($tagData[3]);
         unset($tagData[4]);
-        $tagName = str_replace(array('(', ')', ','), array('','', ''), $tagData[5]);
-        $tagList[] = array('date' => $date, 'name' => $tagName);
+        if( isset($tagData[8]) ){
+            $tagPart = $tagData[8];
+        } else {
+            $tagPart = $tagData[5];
+        }
+        $tagName = str_replace(array('(', ')', ','), array('','', ''), $tagPart);
+
+        if($tagName !== 'develop' && $tagName !== null){
+
+            $tagList[] = array('date' => $date, 'name' => $tagName);
+        }
     }
 }
 
@@ -25,12 +33,14 @@ $lastValue = null;
 $list = array();
 foreach ($tagList as $key => $value) {
     $out = array();
+
     if($lastValue !== null && $value['name'] !== 'develop' && $value['name'] !== '->' && $lastValue !== '->' && $lastValue !== 'develop'){
         $headline = "## [" . $lastValue . "] - " . $lastDate ." \r\n";
         $statement = 'git log '.$value['name'].'..'. ($lastValue ? $lastValue : 'HEAD') .' --no-merges --remove-empty --ignore-missing --no-expand-tabs --encoding=UTF-8';
         exec($statement, $out);
         $list = array();
         $trimmed = '';
+
         foreach($out as $lineKey => $line) {
             $isAuthor = strpos($line, 'Author:');
             $isDate = strpos($line, 'Date:');
