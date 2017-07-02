@@ -9,6 +9,7 @@ $filteredList = array_filter($result, function($value) { return $value !== ''; }
 $tagList = array();
 foreach ($filteredList as $tagKey => $tag){
     $tagData = explode(" ", $tag);
+
     if(isset($tagData[5])){
         $date = $tagData[0];
         $time = $tagData[1];
@@ -16,28 +17,39 @@ foreach ($filteredList as $tagKey => $tag){
         unset($tagData[3]);
         unset($tagData[4]);
         $tagName = str_replace(array('(', ')', ','), array('','', ''), $tagData[5]);
-        $tagList[$date] = $tagName;
+        $tagList[] = array('date' => $date, 'name' => $tagName);
     }
 }
 
-$out = array();
+$lastValue = null;
+$list = array();
 foreach ($tagList as $key => $value) {
-    $headline = "## [" . $value . "] - $key \r\n";
-    $output .= $headline;
-    $statement = 'git log '.$value.'..HEAD -F --no-merges --remove-empty --ignore-missing --no-expand-tabs --encoding=UTF-8';
-    exec($statement, $out);
-    foreach($out as $line) {
-        $isAuthor = strpos($line, 'Author:');
-        $isDate = strpos($line, 'Date:');
-        $isHash = strpos($line, 'commit');
-        $trimmed = trim($line);
-        if($isAuthor !== false || $isDate !== false || $isHash !== false){
+    $out = array();
+    if($lastValue !== null && $value['name'] !== 'develop' && $value['name'] !== '->' && $lastValue !== '->' && $lastValue !== 'develop'){
+        $headline = "## [" . $lastValue . "] - " . $lastDate ." \r\n";
+        $statement = 'git log '.$value['name'].'..'. ($lastValue ? $lastValue : 'HEAD') .' --no-merges --remove-empty --ignore-missing --no-expand-tabs --encoding=UTF-8';
+        exec($statement, $out);
+        $list = array();
+        $trimmed = '';
+        foreach($out as $lineKey => $line) {
+            $isAuthor = strpos($line, 'Author:');
+            $isDate = strpos($line, 'Date:');
+            $isHash = strpos($line, 'commit');
+            $trimmed = trim($line);
+            if($isAuthor !== false || $isDate !== false || $isHash !== false){
+            }else {
+                if(isset($trimmed) && !empty($trimmed)){
+                    $list[] = str_replace(array('(', ')', ',' ,'#'), array('','', '',''), $trimmed) . "\r\n";
+                }
+            }
 
-        }else {
-            if(isset($trimmed) && !empty($trimmed))
-                $output .= "* " . str_replace(array('(', ')', ',' ,'#'), array('','', '',''), $trimmed) . "\r\n";
         }
-    }
+        $output .= $headline;
+        $output .= '* ' . implode('* ', $list);
+    }else { }
+
+    $lastValue = $value['name'];
+    $lastDate = $value['date'];
 }
 
 file_put_contents("CHANGELOG.md", $output);
