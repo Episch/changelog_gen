@@ -6,9 +6,8 @@
         "console",
         "command",
         "commandline",
-        "changelog",
-    ],
-    "homepage": "https://github.com/Episch/changelog_gen/blob/master/README.md",
+        "changelog" 
+    ], 
     "support": {
         "issues": "https://github.com/Episch/changelog_gen/issues"
     },
@@ -22,7 +21,7 @@
     ],
     "license": "MIT",
     "require": {
-        "php": ">=5.5.0",        
+        "php": ">=5.5.0"     
     },
     "require-dev": {
         "mikey179/vfsStream": "~1.6.0"
