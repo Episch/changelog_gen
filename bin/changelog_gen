@@ -1,0 +1,43 @@
+#!/usr/bin/env php
+<?php
+//umask(0000);
+set_time_limit(0);
+
+$output = "# Changelog \r\n";
+exec('git log --tags --simplify-by-decoration --pretty="format:%ci %d"', $result);
+$filteredList = array_filter($result, function($value) { return $value !== ''; } );
+$tagList = array();
+foreach ($filteredList as $tagKey => $tag){
+    $tagData = explode(" ", $tag);
+    if(isset($tagData[5])){
+        $date = $tagData[0];
+        $time = $tagData[1];
+        $timeZone = $tagData[2];
+        unset($tagData[3]);
+        unset($tagData[4]);
+        $tagName = str_replace(array('(', ')', ','), array('','', ''), $tagData[5]);
+        $tagList[$date] = $tagName;
+    }
+}
+
+$out = array();
+foreach ($tagList as $key => $value) {
+    $headline = "## [" . $value . "] - $key \r\n";
+    $output .= $headline;
+    $statement = 'git log '.$value.'..HEAD -F --no-merges --remove-empty --ignore-missing --no-expand-tabs --encoding=UTF-8';
+    exec($statement, $out);
+    foreach($out as $line) {
+        $isAuthor = strpos($line, 'Author:');
+        $isDate = strpos($line, 'Date:');
+        $isHash = strpos($line, 'commit');
+        $trimmed = trim($line);
+        if($isAuthor !== false || $isDate !== false || $isHash !== false){
+
+        }else {
+            if(isset($trimmed) && !empty($trimmed))
+                $output .= "* " . str_replace(array('(', ')', ',' ,'#'), array('','', '',''), $trimmed) . "\r\n";
+        }
+    }
+}
+
+file_put_contents("CHANGELOG.md", $output);

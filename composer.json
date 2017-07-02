@@ -1,0 +1,50 @@
+{
+    "name": "episch/changelog-gen",
+    "description": "A simple console script to generating a changelog from git log",
+    "keywords": [
+        "cli",
+        "console",
+        "command",
+        "commandline",
+        "changelog",
+    ],
+    "homepage": "https://github.com/Episch/changelog_gen/blob/master/README.md",
+    "support": {
+        "issues": "https://github.com/Episch/changelog_gen/issues"
+    },
+    "authors": [
+        {
+            "name": "David Nagelschmidt",
+            "email": "david@episch.org",
+            "role": "Developer",
+            "homepage": "http://episch.org"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "php": ">=5.5.0",        
+    },
+    "require-dev": {
+        "mikey179/vfsStream": "~1.6.0"
+    },    
+    "replace": {
+        "changelog-gen": "self.version", 
+        "episch/changelog-gen": "self.version"
+    },
+    "config": {
+        "vendor-dir": ".Build/vendor",
+        "bin-dir": ".Build/bin"
+    },   
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.0.1" 
+        },
+        "typo3/cms": {
+            "cms-package-dir": "{$vendor-dir}/typo3/cms",
+            "web-dir": ".Build/Web",
+            "Package": {
+                "partOfMinimalUsableSystem": true
+            }
+        }
+    }
+}
