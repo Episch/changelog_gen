@@ -65,21 +65,31 @@ function parseLog($result){
  * @return string
  */
 function render($out, $output, $removeFirst = false){
+
+    $count = 0;
     $list = array();
     foreach($out as $lineKey => $line) {
+
         $isAuthor = strpos($line, 'Author:');
         $isDate = strpos($line, 'Date:');
-        $isHash = strpos($line, 'commit');
         $trimmed = trim($line);
-        if($isAuthor !== false || $isDate !== false || $isHash !== false){
+        if($isAuthor !== false || $isDate !== false || $count === 0){
+
         }else {
             if(isset($trimmed) && !empty($trimmed)){
                 $list[] = str_replace(array('(', ')', ',' ,'#'), array('','', '',''), $trimmed) . "\r\n";
             }
         }
+
+        $count++;
     }
+
     if($removeFirst === true){
         unset($list[0]);
+        unset($list[1]);
+        unset($list[3]);
+        unset($list[5]);
+        unset($list[7]);
     }
     $output .= '* ' . implode('* ', $list);
     return $output;
@@ -89,11 +99,6 @@ $statement = 'git log '.$value['name'].' --no-merges --remove-empty --ignore-mis
 exec($statement, $out);
 $output .= "## [" . $value['name'] . "] - ".$value['date']." \r\n";
 $output = render($out, $output, true);
-// first commit
-$firstCommit = 'git rev-list --max-parents=0 HEAD';
-$hash = exec($firstCommit, $out);
-$statement = 'git log '.$hash.' --no-merges --remove-empty --ignore-missing --no-expand-tabs --encoding=UTF-8';
-exec($statement, $initialCommit);
-$output .= '* ' . trim($initialCommit[4]) ;
+
 // create file
 file_put_contents("CHANGELOG.md", $output);
