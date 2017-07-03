@@ -77,7 +77,10 @@ function render($out, $output, $removeFirst = false){
 
         }else {
             if(isset($trimmed) && !empty($trimmed)){
-                $list[] = str_replace(array('(', ')', ',' ,'#'), array('','', '',''), $trimmed) . "\r\n";
+                $message = str_replace(array('(', ')', ',' ,'#'), array('','', '',''), $trimmed) . "\r\n";
+                if(!preg_match('/commit [0-9a-z]{40}/g', $message)){
+                    $list[] = $message;
+                }
             }
         }
 
