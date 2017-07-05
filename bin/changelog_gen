@@ -6,15 +6,15 @@ class ChangelogGenerator {
     /**
      * @var string
      */
-    private $output;
+    protected $output;
     /**
-     * @var
+     * @var string
      */
-    private $lastDate;
+    protected $lastDate;
     /**
-     * @var
+     * @var string
      */
-    private $lastValue;
+    protected $lastValue;
 
     const HASH_ARRAY_ID = 0;
     const DATE_ARRAY_ID = 1;
