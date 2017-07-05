@@ -144,7 +144,13 @@ class ChangelogGenerator {
      * @return string
      */
     public function __toString(){
-        return (string)"File generated: " . 'CHANGELOG.md | '  . $this->formatBytes($this->cliResult - 4000);
+
+        if($this->cliResult !== false){
+            return (string)"File generated: " . 'CHANGELOG.md | '  . $this->formatBytes($this->cliResult - 4000);
+        }else {
+            return "ERROR: File cant be created"; 
+        }
+
     }
 }
 
