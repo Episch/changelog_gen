@@ -16,6 +16,11 @@ class ChangelogGenerator {
      */
     protected $lastValue;
 
+    /**
+     * @var bool
+     */
+    private $cliResult = false;
+
     const HASH_ARRAY_ID = 0;
     const DATE_ARRAY_ID = 1;
     const COMMENT_ARRAY_ID = 2;
@@ -36,24 +41,19 @@ class ChangelogGenerator {
         $this->lastValue = null;
         foreach ($tagList as $key => $value) {
             $out = array();
-
             if($this->lastValue !== null && $value['name'] !== 'develop' && $value['name'] !== '->' && $this->lastValue !== '->' && $this->lastValue !== 'develop'){
                 $headline = "## [" . $this->lastValue . "] - " . $this->lastDate ." \r\n";
                 $statement = 'git log '.$value['name'].'..'. ($this->lastValue ? $this->lastValue : 'HEAD') .' --no-merges --remove-empty --ignore-missing --no-expand-tabs --encoding=UTF-8  --pretty=format:"%h;%ad;%s;%an" --date=short';
                 exec($statement, $out);
-
                 $this->output .= $headline;
                 $this->output = $this->render($out, $this->output);
-
             }else { }
-
             $this->lastValue = $value['name'];
             $this->lastDate = $value['date'];
         }
 
         $this->addFirstCommit($value);
-
-        file_put_contents('CHANGELOG.md', $this->output);
+        $this->cliResult = file_put_contents('CHANGELOG.md', $this->output);
     }
 
     /**
@@ -123,6 +123,10 @@ class ChangelogGenerator {
         $this->output .= "## [" . $value['name'] . "] - ".$value['date']." \r\n";
         $this->output = $this->render($out, $this->output, true);
     }
+
+    public function __toString(){
+        return (string)$this->cliResult;
+    }
 }
 
-$new = new ChangelogGenerator();
+echo new ChangelogGenerator(); 
