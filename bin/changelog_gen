@@ -15,12 +15,21 @@ class ChangelogGenerator {
      * @var string
      */
     protected $lastValue;
+    /**
+     * @var bool
+     */
+    protected $verbose = false;
+    /**
+     * @var bool
+     */
+    protected $dryRun = false;
 
     /**
      * @var bool
      */
     private $cliResult = false;
 
+    const CLI_SCRIPT_VERSION = '1.0.0';
     const HASH_ARRAY_ID = 0;
     const DATE_ARRAY_ID = 1;
     const COMMENT_ARRAY_ID = 2;
@@ -28,14 +37,59 @@ class ChangelogGenerator {
     const GIT_LOG_FORMAT = '%h;%ad;%s;%an <%ae>';
 
     /**
-     * Generator constructor.
+     * generator constructor
      */
     public function __construct()
     {
         $this->setup();
+        $this->readParams();
+    }
 
+    /**
+     * setup CLI script
+     */
+    private function setup(){
+        //umask(0000);
+        set_time_limit(0);
+        ini_set("register_argc_argv", 1);
+    }
+
+    /**
+     * read out the param list
+     * @param null $argv
+     */
+    private function readParams($argv = null){
+        if (null === $argv) {
+            $argv = $_SERVER['argv'];
+        }
+
+        if(in_array('-h', $argv) || in_array('--help', $argv)){
+            echo "usage: php changelog_gen [--version] [--help] [--verbose] [--dry-run] [<args>]";
+            exit;
+        }elseif(in_array('--version', $argv)){
+            echo self::CLI_SCRIPT_VERSION;
+            exit;
+        }elseif(in_array('-v', $argv) || in_array('--verbose', $argv)){
+            $this->verbose = true;
+        }elseif(in_array('--dry-run', $argv)){
+            $this->dryRun = true;
+        }
+
+        $this->ViewAction();
+    }
+
+    /**
+     * start with read out the log files
+     */
+    private function ViewAction(){
         $this->output = "# Changelog \r\n";
-        exec('git log --tags --simplify-by-decoration --pretty="format:%ci %d"', $result);
+        $getTagsStatement = 'git log --tags --simplify-by-decoration --pretty="format:%ci %d"';
+        exec($getTagsStatement, $result);
+
+        if($this->verbose){
+            echo $getTagsStatement . "\r\n";
+        }
+
         $tagList = $this->parseTagList($result);
 
         $this->lastValue = null;
@@ -44,7 +98,10 @@ class ChangelogGenerator {
             if($this->lastValue !== null && $value['name'] !== 'develop' && $value['name'] !== '->' && $this->lastValue !== '->' && $this->lastValue !== 'develop'){
                 $headline = "## [" . $this->lastValue . "] - " . $this->lastDate ." \r\n";
                 $statement = 'git log '.$value['name'].'..'. ($this->lastValue ? $this->lastValue : 'HEAD') .' --no-merges --remove-empty --ignore-missing --no-expand-tabs --encoding=UTF-8  --pretty=format:"'.self::GIT_LOG_FORMAT.'" --date=short';
-                exec($statement, $out);
+                $stateResult = exec($statement, $out);
+                if($this->verbose){
+                    echo $statement . "\r\n";
+                }
                 $this->output .= $headline;
                 $this->output = $this->render($out, $this->output);
             }else { }
@@ -53,15 +110,11 @@ class ChangelogGenerator {
         }
 
         $this->addFirstCommit($value);
-        $this->cliResult = file_put_contents('CHANGELOG.md', $this->output);
-    }
-
-    /**
-     * Setup CLI script
-     */
-    private function setup(){
-        //umask(0000);
-        set_time_limit(0);
+        if(!$this->dryRun){
+            $this->cliResult = file_put_contents('CHANGELOG.md', $this->output);
+        } else {
+            echo "You use the dry run mode";
+        }
     }
 
     /**
@@ -122,6 +175,9 @@ class ChangelogGenerator {
     private function addFirstCommit($value){
         // get initial commit
         $statement = 'git log '.$value['name'].' --no-merges --remove-empty --ignore-missing --no-expand-tabs --encoding=UTF-8  --pretty=format:"'.self::GIT_LOG_FORMAT.'" --date=short';
+        if($this->verbose){
+            echo $statement . "\r\n";
+        }
         exec($statement, $out);
         $this->output .= "## [" . $value['name'] . "] - ".$value['date']." \r\n";
         $this->output = $this->render($out, $this->output);
@@ -148,9 +204,11 @@ class ChangelogGenerator {
         if($this->cliResult !== false){
             return (string)"File generated: " . 'CHANGELOG.md | '  . $this->formatBytes($this->cliResult - 4000);
         }else {
-            return "ERROR: File cant be created"; 
+            if(!$this->dryRun){
+                return (string)"ERROR: File cant be created";
+            }
         }
-
+        return (string)"";
     }
 }
 
