@@ -82,12 +82,12 @@ class ChangelogGenerator {
      * start with read out the log files
      */
     private function ViewAction(){
-        $this->output = "# Changelog \r\n";
+        $this->output = "# Changelog" . PHP_EOL;
         $getTagsStatement = 'git log --tags --simplify-by-decoration --pretty="format:%ci %d"';
         exec($getTagsStatement, $result);
 
         if($this->verbose){
-            echo $getTagsStatement . "\r\n";
+            echo $getTagsStatement . PHP_EOL;
         }
 
         $tagList = $this->parseTagList($result);
@@ -97,14 +97,14 @@ class ChangelogGenerator {
             $outPutCount = array();
             $out = array();
             if($this->lastValue !== null && $value['name'] !== 'develop' && $value['name'] !== '->' && $this->lastValue !== '->' && $this->lastValue !== 'develop'){
-                $headline = "## [" . $this->lastValue . "] - " . $this->lastDate ." \r\n";
+                $headline = "## [" . $this->lastValue . "] - " . $this->lastDate . PHP_EOL;
                 $statement = 'git log '.$value['name'].'..'. ($this->lastValue ? $this->lastValue : 'HEAD') .' --no-merges --remove-empty --ignore-missing --no-expand-tabs --encoding=UTF-8  --pretty=format:"'.self::GIT_LOG_FORMAT.'" --date=short';
                 $stateResult = exec($statement, $out);
                 if($this->verbose){
                     exec("git rev-list --count " . $value['name']. '..'. ($this->lastValue ? $this->lastValue : 'HEAD') , $outPutCount);
-                    echo $statement . "\r\n";
-                    echo "commit amount: " . $outPutCount[0] . "\r\n";
-                    echo "######" . "\r\n";
+                    echo $statement . PHP_EOL;
+                    echo "commit amount: " . $outPutCount[0] . PHP_EOL;
+                    echo "######" . PHP_EOL;
                 }
                 $this->output .= $headline;
                 $this->output = $this->render($out, $this->output);
@@ -168,7 +168,7 @@ class ChangelogGenerator {
             $result[] = explode(";", $out);
         }
         foreach($result as $resKey => $data){
-            $output .= "* " .$data[self::COMMENT_ARRAY_ID] . "\r\n";
+            $output .= "* " .$data[self::COMMENT_ARRAY_ID] . PHP_EOL;
         }
         return $output;
     }
@@ -180,10 +180,10 @@ class ChangelogGenerator {
         // get initial commit
         $statement = 'git log '.$value['name'].' --no-merges --remove-empty --ignore-missing --no-expand-tabs --encoding=UTF-8  --pretty=format:"'.self::GIT_LOG_FORMAT.'" --date=short';
         if($this->verbose){
-            echo $statement . "\r\n";
+            echo $statement . PHP_EOL;
         }
         exec($statement, $out);
-        $this->output .= "## [" . $value['name'] . "] - ".$value['date']." \r\n";
+        $this->output .= "## [" . $value['name'] . "] - ".$value['date']. PHP_EOL;
         $this->output = $this->render($out, $this->output);
     }
 
