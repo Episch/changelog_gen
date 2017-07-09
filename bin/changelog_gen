@@ -104,7 +104,7 @@ class ChangelogGenerator
                 $statement = 'git log ' . $value['name'] . '..' . ($this->lastValue ? $this->lastValue : 'HEAD') . ' --no-merges --remove-empty --ignore-missing --no-expand-tabs --encoding=UTF-8  --pretty=format:"' . self::GIT_LOG_FORMAT . '" --date=short';
                 exec($statement, $out);
                 if ($this->verbose) {
-                    exec("git rev-list --count " . $value['name'] . '..' . ($this->lastValue ? $this->lastValue : 'HEAD'), $outPutCount);
+                    exec("git rev-list --count " . $value['name'] . '..' . ($this->lastValue ? $this->lastValue : 'HEAD') . " --no-merges " , $outPutCount); 
                     echo $statement . PHP_EOL;
                     echo "commit amount: " . $outPutCount[0] . PHP_EOL;
                     echo "######" . PHP_EOL;

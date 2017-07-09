@@ -1,5 +1,9 @@
 # Changelog
-## [master] - 2017-07-05
+## [1.0.1] - 2017-07-09
+* [CLEANUP] remove unused code
+* [TASK] remove "\r\n" pattern und change it with PHP_EOL value
+* [FEATURE] add commit count at verbose mode
+## [1.0.0] - 2017-07-05
 * [TASK] refactor to OOP pattern and add new functions like cli params etc.
 * [FEATURE] if file cant be created thow error on shell
 * [CLEANUP] refine output & remove unused code
