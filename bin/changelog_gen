@@ -94,13 +94,17 @@ class ChangelogGenerator {
 
         $this->lastValue = null;
         foreach ($tagList as $key => $value) {
+            $outPutCount = array();
             $out = array();
             if($this->lastValue !== null && $value['name'] !== 'develop' && $value['name'] !== '->' && $this->lastValue !== '->' && $this->lastValue !== 'develop'){
                 $headline = "## [" . $this->lastValue . "] - " . $this->lastDate ." \r\n";
                 $statement = 'git log '.$value['name'].'..'. ($this->lastValue ? $this->lastValue : 'HEAD') .' --no-merges --remove-empty --ignore-missing --no-expand-tabs --encoding=UTF-8  --pretty=format:"'.self::GIT_LOG_FORMAT.'" --date=short';
                 $stateResult = exec($statement, $out);
                 if($this->verbose){
+                    exec("git rev-list --count " . $value['name']. '..'. ($this->lastValue ? $this->lastValue : 'HEAD') , $outPutCount);
                     echo $statement . "\r\n";
+                    echo "commit amount: " . $outPutCount[0] . "\r\n";
+                    echo "######" . "\r\n";
                 }
                 $this->output .= $headline;
                 $this->output = $this->render($out, $this->output);
@@ -202,7 +206,7 @@ class ChangelogGenerator {
     public function __toString(){
 
         if($this->cliResult !== false){
-            return (string)"File generated: " . 'CHANGELOG.md | '  . $this->formatBytes($this->cliResult - 4000);
+            return (string)"File generated: " . 'CHANGELOG.md | '  . @$this->formatBytes($this->cliResult - 4000);
         }else {
             if(!$this->dryRun){
                 return (string)"ERROR: File cant be created";

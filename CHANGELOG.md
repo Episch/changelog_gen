@@ -1,4 +1,10 @@
 # Changelog 
+## [0.2.2] - 2017-07-03 
+* [BUGFIX] remove commit hashes
+## [0.2.1] - 2017-07-03 
+* [BUGFIX] optimize output for last tag
+## [0.2.0] - 2017-07-02 
+* [TASK] add first commit to changelog
 ## [0.1.0] - 2017-07-02 
 * [BUGFIX] fix missing last version output
 ## [0.0.5] - 2017-07-02 
