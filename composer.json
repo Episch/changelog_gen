@@ -27,7 +27,6 @@
         "mikey179/vfsStream": "~1.6.0"
     },    
     "replace": {
-        "changelog-gen": "self.version", 
         "episch/changelog-gen": "self.version"
     },
     "config": {
