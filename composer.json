@@ -23,9 +23,6 @@
     "require": {
         "php": ">=5.5.0"     
     },
-    "require-dev": {
-        "mikey179/vfsStream": "~1.6.0"
-    },    
     "replace": {
         "episch/changelog-gen": "self.version"
     },
